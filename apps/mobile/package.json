@@ -1,6 +1,7 @@
 {
   "name": "gescopay-mobile",
   "version": "1.0.0",
+  "homepage": "https://mouhamedmboup1917-lang.github.io/Gescopay",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
