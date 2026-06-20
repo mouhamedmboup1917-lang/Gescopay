@@ -1,0 +1,22 @@
+{
+  "name": "gescopay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GescoPay – One App. One QR. Every Wallet.",
+  "workspaces": [
+    "apps/mobile",
+    "packages/backend"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=apps/mobile",
+    "mobile:web": "npm run web --workspace=apps/mobile",
+    "backend": "npm run start:dev --workspace=packages/backend",
+    "build:web": "npm run build:web --workspace=apps/mobile",
+    "lint": "npm run lint --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
