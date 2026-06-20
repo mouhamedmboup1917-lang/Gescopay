@@ -18,7 +18,7 @@ import { Colors, Shadows } from '@/constants/Colors';
 import { MOCK_CARD, MOCK_TRANSACTIONS } from '@/constants/mockData';
 import { formatCurrency } from '@/lib/formatters';
 import { T } from '@/constants/i18n';
-import { PADDING_H, contentContainer, TS, TOUCH_MIN } from '@/constants/Responsive';
+import { PADDING_H, contentContainer, TS, TOUCH_MIN, CARD_W } from '@/constants/Responsive';
 
 // ===== Toast component =====
 function Toast({ visible, message }: { visible: boolean; message: string }) {
@@ -54,6 +54,11 @@ export default function CardsScreen() {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [cardSettings, setCardSettings] = useState([true, false, true]);
+
+  // Dynamic Card Aspect Ratio & Height
+  const cardHeight = Math.min(220, Math.round(CARD_W / 1.58));
+  const cardPadding = Math.round(cardHeight * 0.11);
+  const cardFontSize = Math.round(cardHeight * 0.08);
 
   // ===== 3D FLIP ANIMATION =====
   const flipAnim = useRef(new Animated.Value(0)).current;
@@ -142,12 +147,13 @@ export default function CardsScreen() {
           </View>
 
           {/* ===== GLASSMORPHISM CARD — 3D FLIP ===== */}
-          <View style={styles.cardWrapper}>
+          <View style={[styles.cardWrapper, { height: cardHeight }]}>
             {/* Front face */}
             <Animated.View
               style={[
                 styles.cardFace,
                 {
+                  height: cardHeight,
                   opacity: frontOpacity,
                   transform: [{ perspective: 1200 }, { rotateY: frontRotateY }],
                 },
@@ -158,7 +164,7 @@ export default function CardsScreen() {
                   colors={isFrozen ? ['#94A3B8', '#64748B'] : ['#143567', '#0A2342']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={styles.card}
+                  style={[styles.card, { height: cardHeight, padding: cardPadding }]}
                 >
                   <View style={styles.glassOverlay} />
                   <View style={styles.cardCircle1} />
@@ -197,7 +203,7 @@ export default function CardsScreen() {
                     </View>
                   </View>
 
-                  <Text style={styles.cardNumber}>
+                  <Text style={[styles.cardNumber, { fontSize: cardFontSize }]}>
                     {showDetails ? MOCK_CARD.cardNumber : MOCK_CARD.maskedNumber}
                   </Text>
 
@@ -228,6 +234,7 @@ export default function CardsScreen() {
                 styles.cardFace,
                 styles.cardFaceBack,
                 {
+                  height: cardHeight,
                   opacity: backOpacity,
                   transform: [{ perspective: 1200 }, { rotateY: backRotateY }],
                 },
@@ -238,7 +245,7 @@ export default function CardsScreen() {
                   colors={isFrozen ? ['#94A3B8', '#64748B'] : ['#143567', '#0A2342']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={styles.card}
+                  style={[styles.card, { height: cardHeight, padding: cardPadding }]}
                 >
                   <View style={styles.glassOverlay} />
                   <View style={styles.cardStripe} />

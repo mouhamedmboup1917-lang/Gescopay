@@ -5,8 +5,9 @@ import { Colors } from '@/constants/Colors';
 import { BlurView } from 'expo-blur';
 import { T } from '@/constants/i18n';
 import { isTablet, TOUCH_LG } from '@/constants/Responsive';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-function TabBarIcon({ name, focused, label }: { name: any; focused: boolean; label: string }) {
+function TabBarIcon({ name, focused }: { name: any; focused: boolean }) {
   return (
     <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
       <Ionicons name={name} size={isTablet ? 24 : 22} color={focused ? Colors.primary : Colors.muted} />
@@ -16,14 +17,27 @@ function TabBarIcon({ name, focused, label }: { name: any; focused: boolean; lab
 }
 
 export default function UserLayout() {
+  const insets = useSafeAreaInsets();
+  
+  // Compute dynamic height ensuring sufficient space for safe areas and labels
+  const bottomPadding = Math.max(insets.bottom, 12);
+  const tabBarHeight = (isTablet ? 68 : 62) + bottomPadding;
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: tabBarHeight,
+            paddingBottom: bottomPadding - 4, // Offset slightly to align text cleanly
+            paddingTop: 8,
+          }
+        ],
         tabBarBackground: () =>
           Platform.OS === 'ios' ? (
-            <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
+            <BlurView intensity={85} tint="light" style={StyleSheet.absoluteFill} />
           ) : (
             <View style={[StyleSheet.absoluteFill, styles.tabBarBg]} />
           ),
@@ -37,14 +51,14 @@ export default function UserLayout() {
         name="home"
         options={{
           title: T.nav.home,
-          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'home' : 'home-outline'} focused={focused} label={T.nav.home} />,
+          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'home' : 'home-outline'} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="wallets/index"
         options={{
           title: T.nav.wallets,
-          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'wallet' : 'wallet-outline'} focused={focused} label={T.nav.wallets} />,
+          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'wallet' : 'wallet-outline'} focused={focused} />,
         }}
       />
       {/* ── Central QR Button ── */}
@@ -54,7 +68,7 @@ export default function UserLayout() {
           title: T.nav.qr,
           tabBarIcon: ({ focused }) => (
             <View style={[styles.qrButton, focused && styles.qrButtonActive]}>
-              <Ionicons name="qr-code" size={26} color="#FFFFFF" />
+              <Ionicons name="qr-code" size={24} color="#FFFFFF" />
             </View>
           ),
           tabBarLabel: () => (
@@ -66,14 +80,14 @@ export default function UserLayout() {
         name="transactions/index"
         options={{
           title: T.nav.activity,
-          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'receipt' : 'receipt-outline'} focused={focused} label={T.nav.activity} />,
+          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'receipt' : 'receipt-outline'} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="profile/index"
         options={{
           title: T.nav.profile,
-          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'person' : 'person-outline'} focused={focused} label={T.nav.profile} />,
+          tabBarIcon: ({ focused }) => <TabBarIcon name={focused ? 'person' : 'person-outline'} focused={focused} />,
         }}
       />
       {/* Hidden screens */}
@@ -92,9 +106,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderTopWidth: 0,
     elevation: 0,
-    height: Platform.OS === 'ios' ? 88 : isTablet ? 80 : 70,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 12,
-    paddingTop: 10,
     backgroundColor: 'transparent',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -113,17 +124,17 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 11,
     fontWeight: '600',
-    marginTop: 2,
+    marginTop: 0,
   },
   qrLabel: {
     fontSize: 11,
     fontWeight: '700',
     color: Colors.primary,
-    marginTop: 2,
+    marginTop: 0,
   },
   iconWrapper: {
     width: 44,
-    height: 34,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
@@ -133,25 +144,25 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     position: 'absolute',
-    bottom: -5,
+    bottom: -3,
     width: 4,
     height: 4,
     borderRadius: 2,
     backgroundColor: Colors.primary,
   },
   qrButton: {
-    width: TOUCH_LG,
-    height: TOUCH_LG,
-    borderRadius: 18,
+    width: 46,
+    height: 46,
+    borderRadius: 16,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
+    marginBottom: 0,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   qrButtonActive: {
     backgroundColor: Colors.primaryDark,

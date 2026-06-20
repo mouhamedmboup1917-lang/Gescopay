@@ -21,7 +21,7 @@ import { Colors, Shadows } from '@/constants/Colors';
 import { formatCurrency } from '@/lib/formatters';
 import { T, getGreeting } from '@/constants/i18n';
 import {
-  SW, PADDING_H, TS, TOUCH_MIN, TOUCH_SM, isTablet, isDesktop, colWidth, contentContainer,
+  SW, PADDING_H, TS, TOUCH_MIN, TOUCH_SM, isTablet, isDesktop, colWidth, contentContainer, CARD_W,
 } from '@/constants/Responsive';
 
 const QUICK_ACTIONS = [
@@ -49,6 +49,11 @@ export default function HomeScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [syncTime, setSyncTime] = useState(T.home.justNow);
   const syncRotation = useRef(new Animated.Value(0)).current;
+
+  // Dynamic Card Aspect Ratio & Height for preview
+  const cardPreviewHeight = Math.min(180, Math.round(CARD_W / 1.9));
+  const cardPreviewPadding = Math.round(cardPreviewHeight * 0.12);
+  const cardPreviewFontSize = Math.round(cardPreviewHeight * 0.095);
 
   const recentTx = MOCK_TRANSACTIONS.slice(0, isTablet ? 10 : 8);
 
@@ -189,7 +194,7 @@ export default function HomeScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               style={styles.walletChips}
-              contentContainerStyle={{ gap: 8 }}
+              contentContainerStyle={{ gap: 8, paddingHorizontal: 24 }}
               accessibilityLabel="Connected wallets"
             >
               {wallets.map((wallet, idx) => (
@@ -252,47 +257,50 @@ export default function HomeScreen() {
                 key={action.id}
                 style={[styles.quickAction, { width: QA_ICON_W }]}
                 onPress={() => action.route && router.push(action.route as any)}
-                activeOpacity={0.7}
                 accessibilityLabel={action.label}
                 accessibilityRole="button"
+                hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
               >
-                <View style={[styles.quickActionIcon, { backgroundColor: `${action.color}15`, width: QA_ICON_SIZE, height: QA_ICON_SIZE }]}>
+                <View style={[styles.quickActionIcon, { backgroundColor: `${action.color}15`, width: QA_ICON_W, height: QA_ICON_W }]}>
                   <Ionicons name={action.icon as any} size={24} color={action.color} />
                 </View>
-                <Text style={styles.quickActionLabel}>{action.label}</Text>
+                <Text style={styles.quickActionLabel} numberOfLines={1} adjustsFontSizeToFit>
+                  {action.label}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
-        {/* ── QR BANNER ── */}
-        <TouchableOpacity
-          activeOpacity={0.88}
-          onPress={() => router.push('/(user)/qr/display')}
-          style={styles.qrBannerWrapper}
-          accessibilityLabel={T.home.receiveViaQR}
-          accessibilityRole="button"
-        >
-          <LinearGradient
-            colors={['#0A2342', '#1A3A6B']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.qrBanner}
+        {/* ── UNIVERSAL QR BANNER ── */}
+        <View style={styles.qrBannerWrapper}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => router.push('/(user)/qr/display')}
+            accessibilityLabel="Universal QR Code"
+            accessibilityRole="button"
           >
-            <View style={styles.qrBannerLeft}>
-              <View style={styles.qrBannerIcon}>
-                <Ionicons name="qr-code" size={26} color="#FFFFFF" />
+            <LinearGradient
+              colors={['#00A8A8', '#1A3A6B']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.qrBanner}
+            >
+              <View style={styles.qrBannerLeft}>
+                <View style={styles.qrBannerIcon}>
+                  <Ionicons name="qr-code-outline" size={24} color="#FFFFFF" />
+                </View>
+                <View style={styles.qrBannerText}>
+                  <Text style={styles.qrBannerTitle}>{T.home.receiveViaQR}</Text>
+                  <Text style={styles.qrBannerSub} numberOfLines={1} adjustsFontSizeToFit>{T.home.receiveViaQRSub}</Text>
+                </View>
               </View>
-              <View style={styles.qrBannerText}>
-                <Text style={styles.qrBannerTitle}>{T.home.receiveViaQR}</Text>
-                <Text style={styles.qrBannerSub}>{T.home.receiveViaQRSub}</Text>
+              <View style={styles.qrBannerArrow}>
+                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
               </View>
-            </View>
-            <View style={styles.qrBannerArrow}>
-              <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
 
         {/* ── VIRTUAL CARD PREVIEW ── */}
         <View style={styles.section}>
@@ -312,13 +320,13 @@ export default function HomeScreen() {
               colors={['#143567', '#0A2342']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.cardPreview}
+              style={[styles.cardPreview, { height: cardPreviewHeight, padding: cardPreviewPadding }]}
             >
               <View style={styles.cardChip}>
                 <View style={styles.chipInner} />
               </View>
               <View style={styles.cardContent}>
-                <Text style={styles.cardNumber}>4532 •••• •••• 9012</Text>
+                <Text style={[styles.cardNumber, { fontSize: cardPreviewFontSize }]}>4532 •••• •••• 9012</Text>
                 <View style={styles.cardBottom}>
                   <View>
                     <Text style={styles.cardFieldLabel}>{T.card.cardHolder}</Text>
@@ -501,7 +509,7 @@ const styles = StyleSheet.create({
   syncText: { fontSize: 11, color: 'rgba(255,255,255,0.38)', fontWeight: '500' },
 
   // Wallet chips
-  walletChips: { marginBottom: 20 },
+  walletChips: { marginBottom: 20, marginHorizontal: -24 },
   walletChip: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 20,
@@ -577,7 +585,7 @@ const styles = StyleSheet.create({
   // Transactions
   txRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.white, borderRadius: 16, padding: 16, marginBottom: 8, ...Shadows.sm },
   txIcon: { width: TOUCH_MIN, height: TOUCH_MIN, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  txInfo: { flex: 1, gap: 4 },
+  txInfo: { flex: 1, gap: 4, marginRight: 8 },
   txName: { fontSize: TS.body, fontWeight: '700', color: Colors.textPrimary },
   txDate: { fontSize: TS.xs, color: Colors.textMuted },
   txRight: { alignItems: 'flex-end', gap: 4 },
